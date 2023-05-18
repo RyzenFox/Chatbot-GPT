@@ -7,27 +7,54 @@ import os
 import random
 import time
 import keyboard
+import io
+import wave
+import subprocess
+import pygetwindow as gw
+
+
 
 # Função que será executada na thread do jogo
 def game_thread():
     pygame.init()
 
-    # Definir o tamanho da janela. Ajuste de forma que a resolução bata com o tamanho da janela
+
+
+
+    # Definir o tamanho da janela
     WINDOW_WIDTH = 1440
     WINDOW_HEIGHT = 900
 
+
+
+
     # Criar a janela
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.FULLSCREEN)
+    
+    # Obtém a lista de telas disponíveis
+    telas = gw.getAllWindows()
 
     # Definir o título da janela
     pygame.display.set_caption('Minigame Pygame')
 
-    # Definir a pasta onde as imagens de animação de boca estão armazenadas
+    # Verifica se há pelo menos duas telas disponíveis
+    if len(telas) >= 2:
+        # Define a tela do Pygame para ser a segunda tela
+        tela_secundaria = telas[1]
+        tela_secundaria.activate()
+    
 
-# atenção. No caminho das pasta abaixo, substitua o caminho abaixo pelo seu caminho de pasta contendo as animações faciais
-    boca_folder = "C:\\Users\\gabri\\OneDrive\\Imagens\\Bocas\\animação de bocas"
+
+    # Definir o título da janela
+    pygame.display.set_caption('Minigame Pygame')
+
+
+
+
+    # Definir a pasta onde as imagens de animação de boca estão armazenadas
+    boca_folder = "C:\\Users\\gabri\\OneDrive\\Documentos\\IA\\animação bocas\\animação de bocas"
     # Carregar as imagens principais
-    imagens_principais_folder = "C:\\Users\\gabri\\OneDrive\\Imagens\\Bocas\\animação standart"
+    imagens_principais_folder = "C:\\Users\\gabri\\OneDrive\\Documentos\\IA\\animação bocas\\animação standart"
     imagens_principais_filenames = [os.path.join(imagens_principais_folder, f) for f in
                                     os.listdir(imagens_principais_folder) if
                                     os.path.isfile(os.path.join(imagens_principais_folder, f))]
@@ -36,9 +63,15 @@ def game_thread():
         image = pygame.image.load(filename)
         imagens_principais.append(image)
 
+
+
+
     # Obter uma lista de nomes de arquivo de todas as imagens na pasta de animação de boca
     boca_filenames = [os.path.join(boca_folder, f) for f in os.listdir(boca_folder) if
                       os.path.isfile(os.path.join(boca_folder, f))]
+
+
+
 
     # Carregar todas as imagens de animação de boca e adicioná-las à lista de animação de boca
     boca_animacao = []
@@ -46,23 +79,38 @@ def game_thread():
         image = pygame.image.load(filename)
         boca_animacao.append(image)
 
+
+
+
     # Definir a posição inicial da imagem principal
     imagem_principal_rect = imagens_principais[0].get_rect()
     imagem_principal_rect.centerx = WINDOW_WIDTH // 2
     imagem_principal_rect.bottom = WINDOW_HEIGHT - -500
+
+
+
 
     # Definir a posição inicial da boca
     boca_rect = boca_animacao[0].get_rect()
     boca_rect.centerx = WINDOW_WIDTH // 2
     boca_rect.bottom = WINDOW_HEIGHT - -500
 
+
+
+
     # Definir a velocidade de animação da boca
     boca_anim_speed = 15
     boca_anim_index = 0
     boca_anim_counter = 0
 
+
+
+
     # Flag para controlar se a imagem principal ou a animação de boca está sendo exibida
     exibir_imagem_principal = True
+
+
+
 
     # Loop principal do jogo
     running = True
@@ -71,18 +119,30 @@ def game_thread():
             if event.type == pygame.QUIT:
                 running = False
 
+
+
+
             # Verificar se a tecla "c" foi pressionada para alternar entre a imagem principal e a animação de boca
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
                     exibir_imagem_principal = not exibir_imagem_principal
 
+
+
+
         # Limpar a tela
         screen.fill((255, 255, 255))
+
+
+
 
         # Verificar se a imagem principal ou a animação de boca deve ser exibida
         if exibir_imagem_principal:
             imagem_principal_index = (pygame.time.get_ticks() // 100) % len(imagens_principais)
             screen.blit(imagens_principais[imagem_principal_index], imagem_principal_rect)
+
+
+
 
         else:
             # Atualizar a animação da boca
@@ -91,33 +151,75 @@ def game_thread():
                 boca_anim_index = (boca_anim_index + 1) % len(boca_animacao)
                 boca_anim_counter = 0
 
+
+
+
             # Desenhar a boca na tela
             screen.blit(boca_animacao[boca_anim_index], boca_rect)
 
+
+
+
         # Atualizar a tela
         pygame.display.update()
+
+
+
 
     # Encerrar o Pygame
     pygame.quit()
 
 
+
+
+# Função para salvar o áudio sintetizado em um arquivo
+def salvar_audio_sintetizado(filename, audio_data):
+    with open(filename, 'wb') as file:
+        file.write(audio_data)
+
+
 # Função que será executada na thread do chatbot
 chatbot_name = "Biel"
+
+
+directory = r"C:\\Users\\gabri\\OneDrive\\Documentos\\IA\\audios"
+
 
 def chatbot_thread():
 
 
-    # Substitua por sua própria chave de assinatura e região de serviço nas aspas abaixo
-    speech_key, service_region = "", "brazilsouth"
+
+
+
+
+
+
+    # Substitua por sua própria chave de assinatura e região de serviço
+    speech_key, service_region = "b339aed4191a4f9d87898bcf8b548c0f", "brazilsouth"
+
+
+
 
     # Crie uma instância de uma configuração de fala com chave de assinatura e região de serviço especificadas.
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
 
+
+
+
     # Defina a voz do sintetizador de voz
     speech_config.speech_synthesis_voice_name = 'pt-BR-LeticiaNeural'
 
-    # substitua pela sua chave de assinatura opeai nas aspas abaixo
-    openai.api_key = ""
+
+
+
+    # Initialize the API key
+    openai.api_key = "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"
+
+
+
+
+
+
 
 
     def gerar_resposta(messages):
@@ -128,6 +230,9 @@ def chatbot_thread():
             temperature=1.5
         )
         return [response.choices[0].message.content, response.usage]
+
+
+
 
     def ouvir_microfone():
         r = sr.Recognizer()
@@ -140,76 +245,201 @@ def chatbot_thread():
             return r.recognize_google(audio, language='pt-BR')
         except sr.UnknownValueError:
             print("Não entendi o que você disse")
+        # Pressione a tecla "c" antes de falar
+            keyboard.press_and_release('c')
+           
+            text = "Não entendi o que você disse. Poderia repetir novamente?"
+
+
+
+
+            # Use SSML para ajustar o tom de voz
+            ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
+
+
+
+
+            speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+            result = speech_synthesizer.speak_ssml_async(ssml).get()
+                # Simule o pressionamento da tecla "c" usando o PyAutoGUI
+            keyboard.press_and_release('c')
+       
         except sr.RequestError as e:
             print("Não foi possível obter resultados; {0}".format(e))
-        return ""
+        return ouvir_microfone()  # Chama a função novamente se ocorreu um erro
+
+
+
 
     mensagens = [{"role": "system", "content": "Você é um assistente gente boa."}]
+
+
+
 
     while True:
         # Ask a question
         question = ouvir_microfone()
 
+
+
+
         if question == "sair" or question == "":
             print("saindo")
+            # Pressione a tecla "c" antes de falar
+            keyboard.press_and_release('c')
+           
+            text = "OK. Irei me desativar agora"
+
+
+
+
+            # Use SSML para ajustar o tom de voz
+            ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
+
+
+
+
+            speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+            result = speech_synthesizer.speak_ssml_async(ssml).get()
+                # Simule o pressionamento da tecla "c" usando o PyAutoGUI
+            keyboard.press_and_release('c')
+           
             break
+       
         else:
-            mensagens.append({"role": "user", "content": str(question)})
+            # Verificar se existe um arquivo de áudio correspondente à pergunta
+            clean_question = "".join(c if c.isalnum() else "_" for c in question)
+            audio_file = os.path.join(directory, f"{clean_question}.wav")
 
-            text = ""
-            if "qual é o seu nome" in question.lower() or "seu nome" in question.lower():
-                print("Pergunta:", question.lower())
-                print("Perguntou meu nome!")
-                mensagens.append({"role": "assistant", "content": f"Meu nome é Gabrielzinho. Mas pode me chamar de {chatbot_name}"})
-                text = f"Meu nome é Gabrielzinho. Mas pode me chamar de {chatbot_name}"
-
+            if os.path.exists(audio_file):
                 # Pressione a tecla "c" antes de falar
                 keyboard.press_and_release('c')
 
-                # Use SSML para ajustar o tom de voz
-                ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
+                pygame.mixer.music.load(audio_file)  # Carregar o arquivo de áudio
+                pygame.mixer.music.play()  # Reproduzir o áudio
 
-                speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
-                result = speech_synthesizer.speak_ssml_async(ssml).get()
+                # Aguardar a reprodução do áudio terminar
+                while pygame.mixer.music.get_busy():
+                    time.sleep(0.1)
 
-                # Simule o pressionamento da tecla "c" usando o PyAutoGUI
+                # Pressione a tecla "c" após o áudio terminar
                 keyboard.press_and_release('c')
-
-
+            
             else:
-                answer = gerar_resposta(mensagens)
-                print("Nóis:", question)
-                print("ChatGPT:", answer[0], "\nCusto:\n", answer[1])
-                mensagens.append({"role": "assistant", "content": answer[0]})
-                text = answer[0]
+                mensagens.append({"role": "user", "content": str(question)})
 
-                # Pressione a tecla "c" antes de falar
-                keyboard.press_and_release('c')
 
-                # Use SSML para ajustar o tom de voz
-                ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
 
-                speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
-                result = speech_synthesizer.speak_ssml_async(ssml).get()
 
-                # Simule o pressionamento da tecla "c" usando o PyAutoGUI
-                keyboard.press_and_release('c')
+                text = ""
+                if "qual é o seu nome" in question.lower() or "seu nome" in question.lower():
+                    print("Pergunta:", question.lower())
+                    print("Perguntou meu nome!")
+                    mensagens.append({"role": "assistant", "content": f"Meu nome é Gabriel Junior. Mas pode me chamar de {chatbot_name}"})
+                    text = f"Meu nome é Gabrielzinho. Mas pode me chamar de {chatbot_name}"
+
+
+
+
+                    # Pressione a tecla "c" antes de falar
+                    keyboard.press_and_release('c')
+
+
+
+
+                    # Use SSML para ajustar o tom de voz
+                    ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
+
+
+
+
+                    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+                    result = speech_synthesizer.speak_ssml_async(ssml).get()
+
+
+
+
+                    # Simule o pressionamento da tecla "c" usando o PyAutoGUI
+                    keyboard.press_and_release('c')
+
+
+
+
+
+
+
+
+                else:
+                    answer = gerar_resposta(mensagens)
+                    print("Nóis:", question)
+                    print("ChatGPT:", answer[0], "\nCusto:\n", answer[1])
+                    mensagens.append({"role": "assistant", "content": answer[0]})
+                    text = answer[0]
+   
+                    # Limpar o texto para usar como nome do arquivo
+                    clean_text = "".join(c if c.isalnum() else "_" for c in question)
+                    filename = os.path.join(directory, f"{clean_text}.wav")
+
+
+                    # Pressione a tecla "c" antes de falar
+                    keyboard.press_and_release('c')
+
+
+                    # Use SSML para ajustar o tom de voz
+                    ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="{speech_config.speech_synthesis_voice_name}"><prosody pitch="-1.2st">{text}</prosody></voice></speak>'
+
+
+                    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+                    result = speech_synthesizer.speak_ssml_async(ssml).get()
+                    audio_data = result.audio_data
+
+
+                    # Salvar o áudio com o nome do texto captado em um diretório específico
+                    with wave.open(filename, 'wb') as wave_file:
+                        wave_file.setnchannels(1)
+                        wave_file.setsampwidth(2)
+                        wave_file.setframerate(16000)
+                        wave_file.writeframes(audio_data)
+
+
+                        print(f"Áudio salvo como '{filename}'")
+
+
+                        # Simule o pressionamento da tecla "c" usando o PyAutoGUI
+                        keyboard.press_and_release('c')
+
+
+
+
+
+
+
 
             debugar = False
             if debugar:
                 print("Mensagens", mensagens, type(mensagens))
 
 
+
+
+
+
+
+
 # Cria as threads
 game = threading.Thread(target=game_thread)
 chatbot = threading.Thread(target=chatbot_thread)
+
+
+
 
 # Inicia as threads
 game.start()
 chatbot.start()
 
+
+
+
 # Espera as threads terminarem (não é necessário neste exemplo, mas pode ser útil em outros casos)
 game.join()
 chatbot.join()
-
-
