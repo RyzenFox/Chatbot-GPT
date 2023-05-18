@@ -195,7 +195,7 @@ def chatbot_thread():
 
 
     # Substitua por sua própria chave de assinatura e região de serviço
-    speech_key, service_region = "b339aed4191a4f9d87898bcf8b548c0f", "brazilsouth"
+    speech_key, service_region = "SUBSTITUA PELA SUA CHAVE API DA MICROSOFT AZURE", "brazilsouth"
 
 
 
@@ -213,7 +213,7 @@ def chatbot_thread():
 
 
     # Initialize the API key
-    openai.api_key = "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"
+    openai.api_key = "SUBSTITUA PELA SUA CHAVE API DA OPENAI"
 
 
 
